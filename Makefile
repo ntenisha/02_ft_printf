@@ -3,38 +3,46 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ahector <ahector@student.42.fr>            +#+  +:+       +#+         #
+#    By: ntenisha <ntenisha@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2021/10/30 22:28:29 by ahector           #+#    #+#              #
-#    Updated: 2021/10/30 22:28:32 by ahector          ###   ########.fr        #
+#    Created: 2022/01/10 20:59:03 by ntenisha          #+#    #+#              #
+#    Updated: 2022/01/10 20:59:09 by ntenisha         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
+NAME = libftprintf.a
 
-INC				=	ft_printf.h
-SRCS			= $(shell find . -name "*.c" ! -name "*_bonus.c")
+LIST =	$(shell find . -name "*.c" ! -name "*_bonus.c")
 
-OBJS			= $(SRCS:.c=.o)
+LIST_B =
 
-BONUS_OBJS		= $(BONUS:.c=.o)
+OBJ = $(patsubst %.c,%.o,$(LIST))
+OBJ_B = $(patsubst %.c,%.o,$(LIST_B))
 
-CC				= clang
-RM				= rm -f
-CFLAGS			= -Wall -Wextra -Werror -I.
+D_FILES = $(patsubst %.c,%.d,$(LIST) $(LIST_B))
 
-NAME			= libftprintf.a
+OPTFLAGS = -O2
+FLAGS = -Wall -Wextra -Werror
 
-all:			$(NAME)
+all : $(NAME)
 
-$(NAME):		$(OBJS) $(INC)
-				ar rcs $(NAME) $(OBJS)
+$(NAME) : $(OBJ)
+	ar rcs $(NAME) $?
 
-clean:
-				$(RM) $(OBJS) $(BONUS_OBJS)
+%.o : %.c
+	gcc $(FLAGS) $(OPTFLAGS) -c $< -o $@ -MD
 
-fclean:			clean
-				$(RM) $(NAME)
+include $(wildcard $(D_FILES))
 
-re:				fclean $(NAME)
+bonus :
+	@make OBJ="$(OBJ_B)" all
 
-.PHONY:			all clean fclean re bonus
+clean :
+	@rm -f $(OBJ) $(OBJ_B) $(D_FILES)
+
+fclean : clean
+	@rm -f $(NAME)
+
+re : fclean all
+
+.PHONY: all clean fclean re bonus
